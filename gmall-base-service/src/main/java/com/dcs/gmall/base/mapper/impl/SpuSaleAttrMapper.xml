@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dcs.gmall.base.mapper.SpuSaleAttrMapper">
+    <resultMap id="SpuSaleAttrMap" type="com.dcs.gmall.bean.SpuSaleAttr" autoMapping="true">
+        <id column="id" property="id"></id>
+        <collection  ofType="com.dcs.gmall.bean.SpuSaleAttrValue" property="spuSaleAttrValueList" autoMapping="true">
+            <result property="id" column="sale_attr_value_id"></result>
+        </collection>
+    </resultMap>
+    <select id="listSpuSaleAttrs" resultMap="SpuSaleAttrMap">
+        SELECT
+        ssa.id,
+        ssa.sale_attr_id,
+        ssa.sale_attr_name,
+        ssav.id sale_attr_value_id,
+        ssav.sale_attr_value_name
+        FROM spu_sale_attr ssa INNER JOIN spu_sale_attr_value ssav
+        ON ssa.sale_attr_id = ssav.sale_attr_id AND ssa.spu_id = ssav.spu_id
+        WHERE ssa.spu_id = #{0}
+    </select>
+
+    <select id="listSaleAttrAndValueAndCheckedBySkuIdAndSpuId" resultMap="SpuSaleAttrMap">
+        SELECT
+        ssa.id, ssa.spu_id, ssa.sale_attr_id, ssa.sale_attr_name,
+        ssav.id sale_attr_value_id, ssav.sale_attr_value_name,
+        IF(skav.sku_id IS NULL,0,1) checked
+        FROM spu_sale_attr ssa INNER JOIN spu_sale_attr_value ssav
+        ON ssa.spu_id = ssav.spu_id AND ssa.sale_attr_id = ssav.sale_attr_id
+        LEFT JOIN sku_sale_attr_value skav
+        ON ssav.sale_attr_id = skav.sale_attr_id AND ssav.id = skav.sale_attr_value_id AND skav.sku_id = #{arg0}
+        WHERE ssa.spu_id = #{arg1}
+    </select>
+</mapper>
